@@ -5,17 +5,18 @@
 <p align="center"><i>Can audio-visual editing models correctly follow cross-modal instructions?</i></p>
 
 <p align="center">
-  <img src="docs/assets/teaser.png" width="92%" alt="AVE-Compass overview">
+  <img src="assets/readme/overview.png" width="92%" alt="AVE-Compass overview">
 </p>
 
 <details>
   <summary><b>Dataset Statistics</b></summary>
   <p align="center">
-    <img src="docs/assets/dataset_statistics.png" width="92%" alt="AVE-Compass dataset statistics">
+    <img src="assets/readme/dataset-statistics.png" width="92%" alt="AVE-Compass dataset statistics">
   </p>
 </details>
 
 <p align="center">
+  <a href="https://ave-compass.github.io/"><img src="https://img.shields.io/badge/Project-Page-78B6CA?logo=googlechrome&logoColor=white" alt="Project page"></a>
   <a href="#citation"><img src="https://img.shields.io/badge/Paper-Citation-4B5563?logo=googlescholar&logoColor=white" alt="Paper citation"></a>
   <a href="https://huggingface.co/datasets/NJU-LINK/AVE-Compass"><img src="https://img.shields.io/badge/Dataset-AVE--Compass-FFD21E?logo=huggingface&logoColor=black" alt="Dataset"></a>
   <a href="https://github.com/NJU-LINK/AVE-Compass"><img src="https://img.shields.io/badge/GitHub-Code-24292F?logo=github&logoColor=white" alt="GitHub code"></a>
@@ -49,7 +50,7 @@ The benchmark reports four complementary dimensions:
 The evaluation package also reports automated cross-modal, video, and audio metrics, together with source-preservation diagnostics for single-modality edits.
 
 <p align="center">
-  <img src="docs/assets/evaluation_matrix.png" width="92%" alt="AVE-Compass evaluation matrix">
+  <img src="assets/readme/evaluation-matrix.png" width="92%" alt="AVE-Compass evaluation matrix">
 </p>
 
 ## Leaderboard
