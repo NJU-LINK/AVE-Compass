@@ -1,0 +1,36 @@
+# Secrets
+.env
+env
+
+# Run outputs
+workspace/
+workspace_*/
+final_*.mp4
+*_result.mp4
+1_2result.mp4
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Packaging
+*.tar.gz
+*.zip
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+.claude/
+
+# Project-local dev notes (not for public repo)
+CLAUDE.md
+TODO.md
+read.ipynb
+Agent开发.pdf

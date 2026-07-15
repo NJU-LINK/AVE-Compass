@@ -1,0 +1,47 @@
+# AVE-Compass objective scoring config
+
+modules:
+  objective: true
+  llm: false
+
+llm:
+  # MLLM-as-a-Judge branch. Set modules.llm=true to run it.
+  checklist: true
+  realism: true
+  num_frames: 8
+  use_full_video: true
+
+objective:
+  settings:
+    av_sync_tau: 2.0
+    lip_sync_conf_threshold: 2.0
+    video_aesthetic_num_frames: 10
+    subject_consistency_num_frames: 50
+    motion_smoothness_num_frames: 32
+    videoclip_num_frames: 8
+    open_clip_model: "ViT-L-14"
+    waveform_sample_rate: 16000
+    waveform_max_shift_sec: 3.0
+  models:
+    # Cross-modal
+    synchformer_model_dir: "models/cross_modal/av_sync/synchformer"
+    syncnet_model: "models/cross_modal/lip_sync/syncnet_v2.model"
+    # Video quality
+    aesthetic_predictor: "models/video_quality/video_aesthetic/aesthetic_predictor_v2_5.pth"
+    dinov2_model: "models/video_quality/subject_consistency/dinov2"
+    amt_s_config: "models/video_quality/motion_smoothness/AMT-G.yaml"
+    amt_s_checkpoint: "models/video_quality/motion_smoothness/amt-g.pth"
+    # Audio quality
+    audiobox_checkpoint: "models/audio_quality/audio_aesthetic/audiobox_aesthetics/checkpoint.pt"
+    nisqa_model: "models/audio_quality/speech_quality/nisqa/nisqa.tar"
+    # Preservation
+    videoclip_xl: "models/preservation/video_similarity/videoclip_xl.pth"
+  scripts:
+    synchformer_batch: "modules/objective/cross_modal/av_sync_impl/scripts/batch_av_sync.py"
+    lipsync_batch: "modules/objective/cross_modal/lip_sync_impl/scripts/batch_lipsync.py"
+    video_aesthetic_batch: "modules/objective/video_quality/video_aesthetic_impl/scripts/batch_video_aesthetic.py"
+    subject_consistency_batch: "modules/objective/video_quality/subject_consistency_impl/scripts/batch_subject_consistency.py"
+    motion_smoothness_batch: "modules/objective/video_quality/motion_smoothness_impl/scripts/batch_motion_smoothness.py"
+    audiobox_batch: "modules/objective/audio_quality/audio_aesthetic_impl/scripts/run_audiobox_batch.py"
+    nisqa_predict: "modules/objective/audio_quality/speech_quality_impl/Objective/Audio/NISQA/run_predict.py"
+    video_similarity_batch: "modules/objective/preservation/video_similarity_impl/scripts/batch_video_similarity.py"
