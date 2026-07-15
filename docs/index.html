@@ -1,0 +1,2737 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AVE-Compass</title>
+  <meta name="description" content="AVE-Compass: a benchmark and agent framework for instruction-based audio-video editing.">
+  <link rel="icon" type="image/png" href="assets/figures/favicon.png">
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f8f4;
+      --paper: #fffef9;
+      --ink: #3a281b;
+      --muted: #705e4b;
+      --line: #d9dfd2;
+      --blue: #6aaec0;
+      --green: #5f7d43;
+      --gold: #b2771e;
+      --coral: #bb6830;
+      --warm-brown: #9a6740;
+      --soft-blue: #e8f5f8;
+      --soft-green: #eef7ea;
+      --soft-gold: #fbf6df;
+      --soft-orange: #fff2e4;
+      --shadow: 0 18px 48px rgba(73, 48, 27, 0.09);
+      --glass: rgba(255, 254, 249, 0.72);
+      --glass-line: rgba(111, 88, 62, 0.24);
+      --sketch-shadow: 3px 4px 0 rgba(122, 91, 62, 0.08), 0 12px 28px rgba(73, 48, 27, 0.07);
+      --display-font: Georgia, "Times New Roman", serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 16px/1.6 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    main {
+      background-color: var(--bg);
+      background-image:
+        linear-gradient(90deg, rgba(154, 103, 64, 0.055) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(154, 103, 64, 0.055) 1px, transparent 1px);
+      background-size: 36px 36px;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img,
+    video {
+      max-width: 100%;
+    }
+
+    .wrap {
+      width: min(1280px, calc(100vw - 48px));
+      margin: 0 auto;
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid rgba(111, 88, 62, 0.16);
+      background: rgba(247, 248, 244, 0.76);
+      box-shadow: 0 8px 24px rgba(73, 48, 27, 0.04);
+      -webkit-backdrop-filter: blur(16px) saturate(118%);
+      backdrop-filter: blur(16px) saturate(118%);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      min-height: 68px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+    }
+
+    .mark {
+      width: 70px;
+      height: 36px;
+      display: block;
+      flex: 0 0 auto;
+    }
+
+    .mark img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .links {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    .links a:hover {
+      color: var(--ink);
+    }
+
+    .links .button:not(.secondary):hover,
+    .links .button:not(.secondary):focus-visible {
+      border-color: #513724;
+      background: #513724;
+      color: #ffffff;
+      outline: none;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      border: 1px solid var(--ink);
+      border-radius: 8px;
+      padding: 8px 14px;
+      background: var(--ink);
+      color: #fffef9;
+      font-weight: 750;
+      font-size: 14px;
+    }
+
+    .button.secondary {
+      background: rgba(255, 254, 249, 0.58);
+      color: var(--ink);
+      border-color: rgba(111, 88, 62, 0.2);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82);
+      -webkit-backdrop-filter: blur(10px) saturate(112%);
+      backdrop-filter: blur(10px) saturate(112%);
+    }
+
+    .button.secondary:hover {
+      border-color: #c99a53;
+      background: var(--soft-orange);
+    }
+
+    .paper-link.is-pending,
+    .paper-link.is-pending:hover,
+    .paper-link.is-pending:focus-visible {
+      border-color: rgba(111, 88, 62, 0.26);
+      border-style: dashed;
+      color: var(--muted);
+      background: rgba(255, 254, 249, 0.44);
+      cursor: default;
+      outline: none;
+    }
+
+    .hero {
+      padding: 46px 0 42px;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(115deg, #f0f8fa 0%, #fbf7e8 52%, #f0f8f1 100%);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(560px, 0.96fr) minmax(0, 1.04fr);
+      gap: 24px;
+      align-items: center;
+    }
+
+    .hero-title-row {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      margin-bottom: 12px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      border: 1px solid rgba(79, 127, 135, 0.28);
+      border-radius: 999px;
+      padding: 3px 10px;
+      background: rgba(255, 254, 249, 0.58);
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 800;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82);
+      -webkit-backdrop-filter: blur(10px) saturate(112%);
+      backdrop-filter: blur(10px) saturate(112%);
+    }
+
+    .hero-logo {
+      display: block;
+      width: clamp(136px, 10.5vw, 160px);
+      height: auto;
+      margin: 0;
+      flex: 0 0 auto;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: var(--display-font);
+      font-size: clamp(40px, 3.8vw, 54px);
+      font-weight: 700;
+      line-height: 1.03;
+      letter-spacing: 0;
+      overflow-wrap: normal;
+      white-space: nowrap;
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 710px;
+      color: var(--muted);
+      font-size: 19px;
+      line-height: 1.52;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .hero-visual {
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      box-shadow: none;
+      overflow: visible;
+    }
+
+    .hero-visual img {
+      display: block;
+      width: min(112%, 980px);
+      max-width: none;
+      margin-left: auto;
+    }
+
+    .transparent-figure {
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+    }
+
+    .transparent-figure img {
+      display: block;
+      width: 100%;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 28px;
+      max-width: 520px;
+    }
+
+    .stat {
+      border: 1.25px solid var(--glass-line);
+      border-radius: 8px;
+      padding: 16px;
+      background: var(--glass);
+      box-shadow: var(--sketch-shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.48);
+      -webkit-backdrop-filter: blur(12px) saturate(108%);
+      backdrop-filter: blur(12px) saturate(108%);
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    .stat:nth-child(even) { border-radius: 8px; }
+    .stat:nth-child(1) { background: rgba(232, 245, 248, 0.78); }
+    .stat:nth-child(2) { background: rgba(251, 246, 223, 0.78); }
+    .stat:nth-child(3) { background: rgba(255, 242, 228, 0.8); }
+    .stat:nth-child(4) { background: rgba(241, 247, 233, 0.8); }
+
+    .stat strong {
+      display: block;
+      color: var(--ink);
+      font-size: 28px;
+      line-height: 1.1;
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    section {
+      padding: 76px 0;
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, 0.85fr) minmax(280px, 0.55fr);
+      gap: 36px;
+      align-items: end;
+      margin-bottom: 30px;
+    }
+
+    h2 {
+      margin: 0;
+      font-family: var(--display-font);
+      font-size: clamp(30px, 4vw, 48px);
+      font-weight: 700;
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+
+    .section-copy {
+      margin: 0;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .bench-layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.72fr) minmax(0, 1.28fr);
+      gap: 28px;
+      align-items: stretch;
+      margin-bottom: 18px;
+    }
+
+    .panel {
+      border: 1.25px solid var(--glass-line);
+      border-radius: 8px;
+      background: var(--glass);
+      overflow: hidden;
+      box-shadow: var(--sketch-shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.48);
+      -webkit-backdrop-filter: blur(14px) saturate(108%);
+      backdrop-filter: blur(14px) saturate(108%);
+    }
+
+    .panel.pad {
+      padding: 24px;
+    }
+
+    .panel img {
+      display: block;
+      width: 100%;
+    }
+
+    .feature-list {
+      display: grid;
+      gap: 14px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .feature-list li {
+      border-left: 4px solid var(--green);
+      padding: 2px 0 2px 14px;
+    }
+
+    .feature-list li:nth-child(2) { border-left-color: var(--gold); }
+    .feature-list li:nth-child(3) { border-left-color: var(--coral); }
+    .feature-list li:nth-child(4) { border-left-color: #8fa76b; }
+    .feature-list li:nth-child(5) { border-left-color: #d7a44a; }
+
+    .feature-list strong {
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .feature-list span {
+      color: var(--muted);
+    }
+
+    .chart-card {
+      min-width: 0;
+      border: 1.25px solid var(--glass-line);
+      border-radius: 8px;
+      padding: 14px;
+      background: rgba(255, 254, 249, 0.72);
+      box-shadow: var(--sketch-shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.48);
+      -webkit-backdrop-filter: blur(14px) saturate(108%);
+      backdrop-filter: blur(14px) saturate(108%);
+      transition: transform 180ms ease, box-shadow 180ms ease, opacity 360ms ease;
+    }
+
+    .chart-card:nth-child(even) {
+      border-radius: 8px;
+    }
+
+    .chart-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 10px;
+    }
+
+    .chart-head h3 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .chart-head span {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+
+    .taxonomy-card {
+      display: block;
+      background: rgba(255, 254, 249, 0.76);
+    }
+
+    .taxonomy-chart {
+      display: block;
+      width: 100%;
+      max-width: 420px;
+      max-height: 420px;
+      margin: 0 auto;
+      aspect-ratio: 1;
+      overflow: hidden;
+    }
+
+    .taxonomy-chart svg,
+    .duration-rose-source svg,
+    .duration-legend-source svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .taxonomy-chart .taxonomy-sector-interactive {
+      cursor: help;
+      transition: filter 150ms ease, stroke 150ms ease, stroke-width 150ms ease;
+    }
+
+    .taxonomy-chart path.taxonomy-sector-interactive:hover {
+      stroke: var(--blue-strong);
+      stroke-width: 5px;
+      filter: saturate(1.1) brightness(1.03);
+    }
+
+    .scope-panel {
+      margin-bottom: 30px;
+    }
+
+    .scope-panel .feature-list {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .stats-cluster + .stats-cluster {
+      margin-top: 22px;
+    }
+
+    .statistics-columns {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .statistics-columns .stats-cluster + .stats-cluster {
+      margin-top: 0;
+    }
+
+    .statistics-columns .stats-cluster {
+      display: flex;
+      min-width: 0;
+      flex-direction: column;
+    }
+
+    .statistics-columns .stats-cluster-body {
+      flex: 1;
+      grid-template-rows: 480px 380px;
+    }
+
+    .stats-cluster-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 12px;
+    }
+
+    .stats-cluster-head h3 {
+      margin: 0;
+      font-family: var(--display-font);
+      font-size: 25px;
+      line-height: 1.15;
+    }
+
+    .stats-cluster-head span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .stats-cluster-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 34px;
+      padding: 5px 7px 5px 12px;
+      border: 1px solid rgba(122, 91, 62, 0.12);
+      border-radius: 6px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.5);
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .stats-cluster-toggle:hover,
+    .stats-cluster-toggle:focus-visible {
+      border-color: rgba(101, 170, 189, 0.42);
+      background: rgba(232, 245, 248, 0.76);
+      outline: none;
+    }
+
+    .stats-cluster-toggle .cluster-meta {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .cluster-chevron {
+      width: 9px;
+      height: 9px;
+      margin: -3px 3px 2px 1px;
+      border-right: 2px solid currentColor;
+      border-bottom: 2px solid currentColor;
+      transform: rotate(45deg);
+      transition: transform 220ms ease, margin 220ms ease;
+    }
+
+    .stats-cluster.is-collapsed .cluster-chevron {
+      margin: 2px 3px -3px 1px;
+      transform: rotate(-135deg);
+    }
+
+    .stats-cluster-body {
+      max-height: 1600px;
+      overflow: clip;
+      opacity: 1;
+      transform: translateY(0);
+      transition: max-height 420ms ease, opacity 240ms ease, transform 320ms ease;
+    }
+
+    .stats-cluster.is-collapsed .stats-cluster-body {
+      max-height: 0;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-8px);
+    }
+
+    .stats-motion .chart-card {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+
+    .stats-motion.is-visible .chart-card {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .stats-motion.is-visible .chart-card:nth-child(2),
+    .stats-motion.is-visible .stats-cluster-body > :nth-child(2) .chart-card {
+      transition-delay: 70ms;
+    }
+
+    .stats-motion .stack-segment,
+    .stats-motion .video-summary-fill,
+    .stats-motion .video-group-slide .bar-fill {
+      transform: scaleX(0);
+      transform-origin: left;
+    }
+
+    .stats-motion.is-visible .stack-segment,
+    .stats-motion.is-visible .video-summary-fill,
+    .stats-motion.is-visible .video-group-slide .bar-fill {
+      transform: scaleX(1);
+      transition: transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .chart-tooltip {
+      position: fixed;
+      z-index: 100;
+      max-width: min(280px, calc(100vw - 24px));
+      padding: 7px 10px;
+      border: 1px solid rgba(101, 170, 189, 0.34);
+      border-radius: 6px;
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.88);
+      box-shadow: 2px 3px 0 rgba(122, 91, 62, 0.08), 0 8px 20px rgba(73, 48, 27, 0.09);
+      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(14px);
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.3;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(5px) rotate(-0.25deg);
+      transition: opacity 120ms ease, transform 120ms ease;
+    }
+
+    .chart-tooltip.is-visible {
+      opacity: 1;
+      transform: translateY(0) rotate(-0.25deg);
+    }
+
+    .editing-stats-grid,
+    .video-stats-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .editing-stats-side,
+    .video-stats-side {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .editing-stats-side > .chart-card,
+    .video-stats-side > .chart-card {
+      height: 100%;
+    }
+
+    .difficulty-card { background: rgba(241, 247, 233, 0.74); }
+    .aspect-card { background: rgba(255, 242, 228, 0.72); }
+    .audio-card { background: rgba(251, 246, 223, 0.74); }
+    .duration-card { background: rgba(232, 245, 248, 0.68); }
+
+    .bar-groups {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px 12px;
+    }
+
+    .bar-group h4 {
+      margin: 0 0 9px;
+      color: var(--warm-brown);
+      font-size: 13px;
+      text-transform: uppercase;
+    }
+
+    section.bar-group,
+    section.difficulty-group,
+    section.video-group-panel {
+      padding: 0;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: minmax(78px, 0.72fr) minmax(70px, 1fr) 30px;
+      gap: 7px;
+      align-items: center;
+      margin-top: 7px;
+      font-size: 12px;
+    }
+
+    .bar-label {
+      overflow: hidden;
+      color: var(--muted);
+      font-weight: 700;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .bar-track {
+      height: 9px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(91, 105, 93, 0.09);
+    }
+
+    .bar-fill {
+      display: block;
+      height: 100%;
+      min-width: 2px;
+      border-radius: inherit;
+      background: var(--bar-color, var(--blue));
+    }
+
+    .bar-value {
+      color: var(--ink);
+      font-weight: 900;
+      text-align: right;
+    }
+
+    .video-summary {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      align-content: center;
+      height: calc(100% - 38px);
+    }
+
+    .video-summary-item {
+      min-width: 0;
+      padding: 13px;
+      border: 1px solid rgba(122, 91, 62, 0.12);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.56);
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+    }
+
+    .video-summary-item:nth-child(even) {
+      border-radius: 8px;
+    }
+
+    .video-summary-top {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .video-summary-top span {
+      color: var(--warm-brown);
+      font-size: 12px;
+      font-weight: 850;
+      text-transform: uppercase;
+    }
+
+    .video-summary-top strong {
+      color: var(--ink);
+      font-size: 25px;
+      line-height: 1;
+    }
+
+    .video-summary-item p {
+      margin: 8px 0 9px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .video-summary-track {
+      display: block;
+      height: 7px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(91, 105, 93, 0.09);
+    }
+
+    .video-summary-fill {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--summary-color);
+    }
+
+    .video-content-card {
+      display: flex;
+      min-height: 0;
+      flex-direction: column;
+    }
+
+    .stats-slider-controls {
+      display: inline-flex;
+      gap: 6px;
+    }
+
+    .stats-slider-button {
+      display: grid;
+      width: 30px;
+      height: 30px;
+      place-items: center;
+      border: 1px solid rgba(122, 91, 62, 0.16);
+      border-radius: 5px;
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.62);
+      font: inherit;
+      font-size: 16px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .stats-slider-button:hover,
+    .stats-slider-button:focus-visible {
+      border-color: rgba(101, 170, 189, 0.46);
+      background: rgba(232, 245, 248, 0.9);
+      outline: none;
+    }
+
+    .stats-slider-button:disabled {
+      cursor: default;
+      opacity: 0.36;
+    }
+
+    .video-groups-carousel {
+      display: flex;
+      min-height: 0;
+      flex: 1;
+      overflow-x: auto;
+      overscroll-behavior-inline: contain;
+      scroll-behavior: smooth;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+    }
+
+    .video-groups-carousel::-webkit-scrollbar {
+      display: none;
+    }
+
+    .video-group-slide {
+      display: grid;
+      min-width: 100%;
+      padding: 14px 3px 4px;
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto auto;
+      gap: 22px;
+      align-content: start;
+      align-items: start;
+      scroll-snap-align: start;
+    }
+
+    .video-group-panel {
+      min-width: 0;
+    }
+
+    .video-group-panel + .video-group-panel {
+      padding-top: 20px;
+      border-top: 1px solid rgba(122, 91, 62, 0.12);
+    }
+
+    .video-group-panel h4 {
+      margin: 0 0 16px;
+      color: var(--warm-brown);
+      font-size: 15px;
+      text-transform: uppercase;
+    }
+
+    .video-group-slide .bar-row {
+      grid-template-columns: minmax(86px, 0.72fr) minmax(58px, 1fr) 30px;
+      gap: 7px;
+      margin-top: 10px;
+      font-size: 12px;
+    }
+
+    .video-group-slide .bar-track {
+      height: 11px;
+    }
+
+    .aspect-card .donut-layout,
+    .audio-card .donut-layout {
+      grid-template-columns: 1fr;
+      justify-items: center;
+    }
+
+    .aspect-card .chart-head,
+    .audio-card .chart-head {
+      display: block;
+    }
+
+    .aspect-card .chart-head span,
+    .audio-card .chart-head span {
+      display: block;
+      margin-top: 4px;
+      white-space: normal;
+      line-height: 1.3;
+    }
+
+    .aspect-card .donut,
+    .audio-card .donut {
+      width: 152px;
+    }
+
+    .aspect-card .chart-legend,
+    .audio-card .chart-legend {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      width: 100%;
+      margin-top: 4px;
+    }
+
+    .aspect-card .legend-row,
+    .audio-card .legend-row {
+      font-size: 11px;
+    }
+
+    .aspect-card .legend-row strong,
+    .audio-card .legend-row strong {
+      font-size: 11px;
+    }
+
+    .donut-layout {
+      display: grid;
+      grid-template-columns: 118px minmax(0, 1fr);
+      gap: 14px;
+      align-items: center;
+    }
+
+    .donut {
+      position: relative;
+      width: 118px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: var(--donut-gradient);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.72);
+    }
+
+    .donut::after {
+      content: attr(data-center);
+      position: absolute;
+      inset: 28%;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: rgba(255, 254, 249, 0.94);
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 900;
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    .chart-legend {
+      display: grid;
+      gap: 7px;
+    }
+
+    .legend-row {
+      display: grid;
+      grid-template-columns: 9px minmax(0, 1fr) auto;
+      gap: 7px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .legend-swatch {
+      width: 9px;
+      height: 9px;
+      border-radius: 3px;
+      background: var(--swatch);
+    }
+
+    .legend-row strong {
+      color: var(--ink);
+      font-size: 12px;
+    }
+
+    .difficulty-groups {
+      display: grid;
+      gap: 14px;
+      padding-top: 2px;
+    }
+
+    .difficulty-group h4 {
+      margin: 0 0 8px;
+      color: var(--warm-brown);
+      font-size: 13px;
+    }
+
+    .stacked-bar {
+      display: flex;
+      height: 30px;
+      overflow: hidden;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.58);
+    }
+
+    .stack-segment {
+      display: grid;
+      place-items: center;
+      min-width: 22px;
+      color: var(--ink);
+      font-size: 11px;
+      font-weight: 900;
+      line-height: 1.1;
+      text-align: center;
+    }
+
+    .duration-figure {
+      display: grid;
+      gap: 8px;
+      align-content: center;
+      min-height: 176px;
+    }
+
+    .duration-rose-source {
+      display: block;
+      width: min(100%, 390px);
+      margin: 0 auto;
+      aspect-ratio: 2 / 1;
+    }
+
+    .duration-legend-source {
+      width: min(100%, 270px);
+      margin: 0 auto;
+      aspect-ratio: 560 / 132;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .metric {
+      border: 1.25px solid var(--glass-line);
+      border-radius: 8px;
+      padding: 18px;
+      background: rgba(255, 254, 249, 0.72);
+      min-height: 184px;
+      box-shadow: var(--sketch-shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.48);
+      -webkit-backdrop-filter: blur(12px) saturate(108%);
+      backdrop-filter: blur(12px) saturate(108%);
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    .metric:nth-child(odd) { background: rgba(232, 245, 248, 0.76); }
+    .metric:nth-child(even) {
+      border-radius: 8px;
+      background: rgba(255, 254, 249, 0.74);
+    }
+
+    .metric b {
+      color: var(--blue);
+      font-size: 14px;
+      text-transform: uppercase;
+    }
+
+    .metric h3 {
+      margin: 8px 0 10px;
+      font-size: 19px;
+      line-height: 1.25;
+    }
+
+    .metric p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .auto-metrics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .result-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+      scrollbar-color: rgba(106, 174, 192, 0.5) transparent;
+      scrollbar-width: thin;
+    }
+
+    .leaderboard-panel {
+      min-width: 0;
+    }
+
+    .leaderboard-head {
+      display: flex;
+      align-items: center;
+      margin-bottom: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(122, 91, 62, 0.14);
+    }
+
+    .leaderboard-head h3 {
+      margin: 0;
+      font-family: var(--display-font);
+      font-size: 20px;
+      line-height: 1.15;
+    }
+
+    .leaderboard-head p {
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .result-table {
+      width: 100%;
+      min-width: 760px;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .result-table th,
+    .result-table td {
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .result-table th:first-child,
+    .result-table td:first-child {
+      text-align: left;
+    }
+
+    .result-table th {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      background: var(--soft-blue);
+    }
+
+    .result-table thead tr:first-child th:not(:first-child) {
+      text-align: center;
+    }
+
+    .full-results-table {
+      min-width: 1230px;
+    }
+
+    .automatic-results-table {
+      min-width: 940px;
+    }
+
+    .result-table tbody tr:nth-child(odd) td {
+      background: rgba(255, 254, 249, 0.9);
+    }
+
+    .result-table tbody tr:nth-child(even) td {
+      background: rgba(232, 245, 248, 0.42);
+    }
+
+    .result-table .intent-group,
+    .result-table .intent-overall {
+      background: #d9eef4;
+    }
+
+    .result-table .group-start,
+    .full-results-table tbody td:nth-child(2),
+    .full-results-table tbody td:nth-child(5),
+    .full-results-table tbody td:nth-child(8),
+    .full-results-table tbody td:nth-child(11),
+    .automatic-results-table tbody td:nth-child(2),
+    .automatic-results-table tbody td:nth-child(4),
+    .automatic-results-table tbody td:nth-child(7) {
+      border-left: 1px solid rgba(122, 91, 62, 0.14);
+    }
+
+    .rank-score {
+      display: inline-grid;
+      width: 100%;
+      grid-template-columns: 23px 72px;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .rank-score > span:last-child {
+      text-align: right;
+    }
+
+    .rank-badge {
+      display: inline-grid;
+      width: 23px;
+      height: 23px;
+      flex: 0 0 auto;
+      place-items: center;
+      border: 1px solid rgba(86, 65, 42, 0.18);
+      border-radius: 50%;
+      box-shadow: 0 2px 0 rgba(73, 48, 27, 0.1);
+      font-size: 11px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .rank-badge.gold {
+      color: #624313;
+      background: #efc65e;
+    }
+
+    .rank-badge.silver {
+      color: #4f5960;
+      background: #d9e0e3;
+    }
+
+    .rank-badge.bronze {
+      color: #633d27;
+      background: #d99c72;
+    }
+
+    .delta {
+      margin-left: 2px;
+      color: var(--green);
+      font-size: 8px;
+      font-weight: 850;
+    }
+
+    .table-note {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .automatic-metrics-details {
+      min-width: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .automatic-metrics-details summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 17px 22px;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .automatic-metrics-details summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .automatic-summary-copy strong {
+      display: block;
+      font-family: var(--display-font);
+      font-size: 20px;
+      line-height: 1.2;
+    }
+
+    .automatic-summary-copy > span {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .automatic-chevron {
+      width: 10px;
+      height: 10px;
+      flex: 0 0 auto;
+      margin-right: 3px;
+      border-right: 2px solid var(--muted);
+      border-bottom: 2px solid var(--muted);
+      transform: rotate(45deg);
+      transition: transform 220ms ease;
+    }
+
+    .automatic-metrics-details[open] .automatic-chevron {
+      transform: rotate(225deg);
+    }
+
+    .automatic-table-wrap {
+      padding: 18px 22px 20px;
+      border-top: 1px solid rgba(122, 91, 62, 0.14);
+    }
+
+    .findings {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .finding {
+      border: 1.25px solid var(--glass-line);
+      border-radius: 8px;
+      padding: 18px;
+      background: var(--glass);
+      box-shadow: var(--sketch-shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.48);
+      -webkit-backdrop-filter: blur(12px) saturate(108%);
+      backdrop-filter: blur(12px) saturate(108%);
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    .finding:nth-child(1) { background: rgba(238, 247, 234, 0.8); }
+    .finding:nth-child(2) {
+      border-radius: 8px;
+      background: rgba(251, 246, 223, 0.8);
+    }
+    .finding:nth-child(3) { background: rgba(255, 242, 228, 0.82); }
+
+    .finding strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--warm-brown);
+      font-size: 15px;
+    }
+
+    .finding p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      border-radius: 999px;
+      padding: 4px 10px;
+      background: var(--soft-blue);
+      color: #4f7f87;
+      font-size: 13px;
+      font-weight: 750;
+      border: 1px solid rgba(106, 174, 192, 0.14);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+    }
+
+    .pill:nth-child(even) { background: rgba(255, 254, 249, 0.88); }
+
+    .agent-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 0.78fr);
+      gap: 28px;
+      align-items: start;
+    }
+
+    .agent-steps {
+      display: grid;
+      gap: 12px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 44px 1fr;
+      gap: 14px;
+      border: 1.25px solid var(--glass-line);
+      border-radius: 8px;
+      padding: 16px;
+      background: var(--glass);
+      box-shadow: var(--sketch-shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.48);
+      -webkit-backdrop-filter: blur(12px) saturate(108%);
+      backdrop-filter: blur(12px) saturate(108%);
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    .step:nth-child(1) { background: rgba(238, 247, 234, 0.8); }
+    .step:nth-child(2) {
+      border-radius: 8px;
+      background: rgba(251, 246, 223, 0.8);
+    }
+    .step:nth-child(3) { background: rgba(255, 242, 228, 0.82); }
+
+    .num {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--soft-gold);
+      color: var(--ink);
+      font-weight: 900;
+    }
+
+    .step h3 {
+      margin: 0 0 4px;
+      font-size: 18px;
+    }
+
+    .step p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .score-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    .score-table th,
+    .score-table td {
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .score-table th:first-child,
+    .score-table td:first-child {
+      text-align: left;
+    }
+
+    .score-table th {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      background: var(--soft-green);
+    }
+
+    .score-table tbody tr:nth-child(odd) td {
+      background: rgba(255, 254, 249, 0.72);
+    }
+
+    .score-table tbody tr:nth-child(even) td {
+      background: rgba(248, 237, 200, 0.42);
+    }
+
+    .score-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .best {
+      color: #56763e;
+      font-weight: 900;
+    }
+
+    .case-list {
+      display: grid;
+      gap: 54px;
+    }
+
+    .case {
+      min-width: 0;
+      border-top: 1px solid rgba(111, 88, 62, 0.2);
+      padding-top: 28px;
+    }
+
+    .case-overview {
+      display: grid;
+      grid-template-columns: minmax(320px, 0.88fr) minmax(0, 1.12fr);
+      gap: 28px;
+      align-items: center;
+    }
+
+    .source-media {
+      min-width: 0;
+      border: 1.25px solid var(--glass-line);
+      border-radius: 8px;
+      padding: 12px;
+      background: rgba(255, 254, 249, 0.72);
+      box-shadow: var(--sketch-shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.48);
+      -webkit-backdrop-filter: blur(12px) saturate(108%);
+      backdrop-filter: blur(12px) saturate(108%);
+    }
+
+    .case-kicker {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 850;
+      text-transform: uppercase;
+    }
+
+    .case h3 {
+      margin: 0 0 16px;
+      font-family: var(--display-font);
+      font-size: clamp(24px, 2.5vw, 34px);
+      line-height: 1.18;
+    }
+
+    .case p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .instruction-block {
+      border-left: 3px solid var(--gold);
+      padding: 2px 0 2px 14px;
+    }
+
+    .instruction-label {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--warm-brown);
+      font-size: 12px;
+      font-weight: 850;
+      text-transform: uppercase;
+    }
+
+    .case-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 29px;
+      border: 1px solid rgba(111, 88, 62, 0.14);
+      border-radius: 999px;
+      padding: 4px 10px;
+      background: rgba(255, 254, 249, 0.74);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .tag.category {
+      background: rgba(238, 247, 234, 0.88);
+      color: var(--green);
+    }
+
+    .tag.operation {
+      background: rgba(251, 246, 223, 0.9);
+      color: var(--warm-brown);
+    }
+
+    .tag.modality {
+      background: rgba(232, 245, 248, 0.9);
+      color: #4f7f87;
+    }
+
+    .tag.difficulty {
+      background: rgba(255, 242, 228, 0.88);
+      color: var(--warm-brown);
+    }
+
+    .video-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-height: 28px;
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 850;
+    }
+
+    .carousel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin: 26px 0 12px;
+    }
+
+    .carousel-head h4 {
+      margin: 0;
+      font-size: 15px;
+    }
+
+    .carousel-controls {
+      display: flex;
+      gap: 8px;
+    }
+
+    .carousel-button {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(111, 88, 62, 0.22);
+      border-radius: 8px;
+      padding: 0;
+      background: rgba(255, 254, 249, 0.7);
+      color: var(--ink);
+      cursor: pointer;
+      font: 700 20px/1 ui-sans-serif, system-ui, sans-serif;
+      box-shadow: 2px 3px 0 rgba(122, 91, 62, 0.07);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+    }
+
+    .carousel-button:hover:not(:disabled) {
+      border-color: rgba(154, 103, 64, 0.46);
+      background: var(--soft-orange);
+    }
+
+    .carousel-button:disabled {
+      opacity: 0.34;
+      cursor: default;
+    }
+
+    .model-carousel {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      overscroll-behavior-inline: contain;
+      scroll-behavior: smooth;
+      scroll-snap-type: inline mandatory;
+      scrollbar-color: rgba(106, 174, 192, 0.52) transparent;
+      scrollbar-width: thin;
+      padding: 4px 4px 18px;
+    }
+
+    .model-card {
+      flex: 0 0 clamp(300px, 32vw, 405px);
+      min-width: 0;
+      scroll-snap-align: start;
+      border: 1.25px solid var(--glass-line);
+      border-radius: 8px;
+      padding: 12px;
+      background: rgba(255, 254, 249, 0.76);
+      box-shadow: var(--sketch-shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.48);
+      -webkit-backdrop-filter: blur(12px) saturate(108%);
+      backdrop-filter: blur(12px) saturate(108%);
+    }
+
+    .model-card:nth-child(even) {
+      border-radius: 8px;
+    }
+
+    .model-card.agent-card {
+      border-color: rgba(95, 125, 67, 0.42);
+      background: rgba(238, 247, 234, 0.9);
+      box-shadow: 3px 4px 0 rgba(95, 125, 67, 0.09), inset 0 0 0 1px rgba(255, 255, 255, 0.56);
+    }
+
+    .model-card.failure-card {
+      border-color: rgba(187, 104, 92, 0.34);
+      background: rgba(252, 236, 232, 0.78);
+      box-shadow: 3px 4px 0 rgba(187, 104, 92, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+    }
+
+    .model-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 32px;
+      margin-bottom: 8px;
+    }
+
+    .model-card-head strong {
+      font-size: 14px;
+    }
+
+    .agent-card .model-card-head strong {
+      color: var(--green);
+    }
+
+    .intent-score {
+      flex: 0 0 auto;
+      border-radius: 999px;
+      padding: 3px 8px;
+      background: rgba(232, 245, 248, 0.94);
+      color: #4f7f87;
+      font-size: 11px;
+      font-weight: 850;
+    }
+
+    .agent-card .intent-score {
+      background: rgba(255, 254, 249, 0.9);
+      color: var(--green);
+    }
+
+    .failure-card .intent-score {
+      background: rgba(255, 249, 247, 0.94);
+      color: #a35449;
+    }
+
+    .failure-note {
+      margin: 10px 0 0;
+      padding: 9px 2px 1px;
+      border-top: 1px solid rgba(187, 104, 92, 0.2);
+      color: #765247;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .failure-note strong {
+      display: block;
+      margin-bottom: 3px;
+      color: #a35449;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    video {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 6px;
+      background: #2b2018;
+      object-fit: contain;
+    }
+
+    .cite {
+      border-top: 1px solid var(--line);
+      background-color: rgba(238, 247, 234, 0.88);
+      background-image:
+        linear-gradient(90deg, rgba(154, 103, 64, 0.055) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(154, 103, 64, 0.055) 1px, transparent 1px);
+      background-size: 36px 36px;
+    }
+
+    .cite-box {
+      border: 1.25px solid var(--glass-line);
+      border-radius: 8px;
+      background: rgba(255, 254, 249, 0.72);
+      padding: 22px;
+      box-shadow: var(--sketch-shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.48);
+      -webkit-backdrop-filter: blur(14px) saturate(108%);
+      backdrop-filter: blur(14px) saturate(108%);
+    }
+
+    .reveal-ready .reveal-item {
+      opacity: 0;
+      transform: translateY(16px);
+      transition:
+        opacity 520ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 160ms ease;
+      transition-delay: var(--reveal-delay, 0ms);
+      will-change: opacity, transform;
+    }
+
+    .reveal-ready .reveal-item.is-revealed {
+      opacity: 1;
+      transform: translateY(0);
+      will-change: auto;
+    }
+
+    @media (hover: hover) {
+      .chart-card:hover {
+        transform: translateY(-2px) rotate(-0.05deg);
+        box-shadow: 4px 5px 0 rgba(122, 91, 62, 0.07), 0 16px 30px rgba(73, 48, 27, 0.08);
+      }
+
+      .video-summary-item:hover {
+        border-color: rgba(101, 170, 189, 0.34);
+        background: rgba(255, 255, 255, 0.82);
+        transform: translateY(-2px);
+      }
+
+      .stat:hover,
+      .metric:hover,
+      .finding:hover,
+      .step:hover {
+        transform: translateY(-2px) rotate(-0.08deg);
+        box-shadow: 4px 6px 0 rgba(122, 91, 62, 0.09), 0 16px 30px rgba(73, 48, 27, 0.09);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .chart-card,
+      .stats-cluster-body,
+      .cluster-chevron,
+      .stack-segment,
+      .video-summary-fill,
+      .video-group-slide .bar-fill,
+      .stat,
+      .metric,
+      .finding,
+      .step {
+        transition: none;
+        animation: none;
+      }
+
+      .stats-motion .chart-card {
+        opacity: 1;
+        transform: none;
+      }
+
+      .reveal-ready .reveal-item {
+        opacity: 1;
+        transform: none;
+        transition: none;
+      }
+    }
+
+    pre {
+      margin: 0;
+      overflow-x: auto;
+      color: var(--ink);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    footer {
+      padding: 34px 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 1180px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-visual img {
+        width: 100%;
+        max-width: 100%;
+      }
+    }
+
+    @media (max-width: 980px) {
+      .bench-layout,
+      .result-layout,
+      .agent-layout,
+      .section-head {
+        grid-template-columns: 1fr;
+      }
+
+      .editing-stats-grid,
+      .video-stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .statistics-columns {
+        grid-template-columns: 1fr;
+      }
+
+      .editing-stats-side,
+      .video-stats-side {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .donut-layout {
+        grid-template-columns: 112px minmax(0, 1fr);
+      }
+
+      .donut { width: 112px; }
+
+      .metric-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .findings {
+        grid-template-columns: 1fr;
+      }
+
+      .case-overview {
+        grid-template-columns: 1fr;
+      }
+
+      .source-media {
+        max-width: 720px;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .wrap {
+        width: min(100% - 24px, 1180px);
+      }
+
+      .nav-inner {
+        min-height: auto;
+        padding: 12px 0;
+        align-items: flex-start;
+      }
+
+      .links {
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .links a:not(.button) {
+        display: none;
+      }
+
+      .hero {
+        padding: 48px 0 34px;
+      }
+
+      h1 {
+        font-size: clamp(27px, 7.5vw, 40px);
+      }
+
+      .hero-title-row {
+        align-items: flex-start;
+        gap: 14px;
+      }
+
+      .hero-logo {
+        width: clamp(88px, 27vw, 118px);
+      }
+
+      .mark {
+        width: 58px;
+        height: 30px;
+      }
+
+      .stats,
+      .metric-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .scope-panel .feature-list,
+      .editing-stats-side,
+      .video-stats-side {
+        grid-template-columns: 1fr;
+      }
+
+      .statistics-columns .stats-cluster-body {
+        grid-template-rows: auto auto;
+      }
+
+      .video-content-card {
+        min-height: 520px;
+      }
+
+      .video-group-slide {
+        gap: 24px;
+      }
+
+      .taxonomy-chart {
+        max-width: 420px;
+        margin: 0 auto;
+      }
+
+      .bar-groups {
+        grid-template-columns: 1fr;
+      }
+
+      .video-summary {
+        height: auto;
+      }
+
+      .donut-layout {
+        grid-template-columns: 128px minmax(0, 1fr);
+      }
+
+      .donut { width: 128px; }
+
+      .case-list {
+        gap: 42px;
+      }
+
+      .case-overview {
+        gap: 20px;
+      }
+
+      .model-card {
+        flex-basis: min(86vw, 360px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="#top" aria-label="AVE-Compass home">
+        <span class="mark"><img src="assets/figures/logo.png" alt=""></span>
+        <span>AVE-Compass</span>
+      </a>
+      <div class="links">
+        <a href="#benchmark">Benchmark</a>
+        <a href="#metrics">Metrics</a>
+        <a href="#findings">Findings</a>
+        <a href="#agent">Agent</a>
+        <a href="#cases">Cases</a>
+        <a class="button secondary paper-link" href="#" data-paper-link>Paper</a>
+        <a class="button secondary" href="https://github.com/NJU-LINK/AVE-Compass">GitHub</a>
+        <a class="button" href="https://huggingface.co/datasets/NJU-LINK/AVE-Compass">Dataset</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero" id="top">
+    <div class="wrap hero-grid">
+      <div>
+        <div class="hero-title-row">
+          <img class="hero-logo" src="assets/figures/logo.png" alt="AVE-Compass logo">
+          <h1>AVE-Compass</h1>
+        </div>
+        <span class="eyebrow">Audio-Video Editing Benchmark</span>
+        <p class="subtitle">
+          A holistic benchmark for instruction-based audio-video editing, built to test whether systems can perform the requested edit while preserving non-target visual and acoustic content.
+        </p>
+        <div class="hero-actions">
+          <a class="button" href="https://huggingface.co/datasets/NJU-LINK/AVE-Compass">Hugging Face Dataset</a>
+          <a class="button secondary" href="https://github.com/NJU-LINK/AVE-Compass">GitHub Repository</a>
+          <a class="button secondary paper-link" href="#" data-paper-link>Paper</a>
+          <a class="button secondary" href="#cases">View Cases</a>
+        </div>
+        <div class="stats" aria-label="Benchmark statistics">
+          <div class="stat"><strong>145</strong><span>source videos</span></div>
+          <div class="stat"><strong>196</strong><span>editing instructions</span></div>
+          <div class="stat"><strong>2,688</strong><span>checklist items</span></div>
+          <div class="stat"><strong>28</strong><span>operation types</span></div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <img src="assets/figures/bench-transparent.png" alt="AVE-Compass benchmark overview">
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="benchmark">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Benchmark Scope</h2>
+          </div>
+          <p class="section-copy">
+            AVE-Compass treats a video as a coupled audio-visual signal. Its tasks cover explicit cross-modal edits, implicit audio consequences of visual edits, speech edits, and strict single-modality preservation tests.
+          </p>
+        </div>
+        <div class="panel pad scope-panel">
+            <ul class="feature-list">
+              <li><strong>Joint audio-visual editing</strong><span>Coordinated changes across visible events and their associated sounds.</span></li>
+              <li><strong>Speech editing</strong><span>Sentence, speaker, pacing, and speech-related audio-video consistency.</span></li>
+              <li><strong>Video-only editing</strong><span>Visual changes where the original audio stream should remain faithful.</span></li>
+              <li><strong>Audio-only editing</strong><span>Sound changes where the visual stream should be preserved.</span></li>
+              <li><strong>Difficulty labels</strong><span>Object localization, audio-source complexity, and cross-modal linkage annotations support diagnostic analysis.</span></li>
+            </ul>
+        </div>
+
+        <div class="statistics-columns">
+        <div class="stats-cluster" aria-label="Editing instruction statistics">
+          <div class="stats-cluster-head"><h3>Editing Instruction Statistics</h3><button class="stats-cluster-toggle" type="button" aria-expanded="true" aria-label="Collapse editing instruction statistics"><span class="cluster-meta">196 instructions · 28 operations</span><span class="cluster-chevron" aria-hidden="true"></span></button></div>
+          <div class="editing-stats-grid stats-cluster-body">
+            <article class="chart-card taxonomy-card">
+              <div class="chart-head"><h3>Editing Taxonomy</h3><span>4 modalities</span></div>
+              <div class="taxonomy-chart" data-inline-svg="assets/figures/a_compass_sunburst_pale.svg" role="img" aria-label="Editing operation taxonomy"></div>
+            </article>
+            <div class="editing-stats-side">
+              <article class="chart-card difficulty-card">
+                <div class="chart-head"><h3>Editing Difficulty</h3><span>3 dimensions</span></div>
+                <div class="difficulty-groups" id="difficulty-bars"></div>
+              </article>
+              <article class="chart-card aspect-card">
+                <div class="chart-head"><h3>Audio Editing Aspect</h3><span>Sound types involved in edit targets</span></div>
+                <div class="donut-layout">
+                  <div class="donut" id="aspect-donut" data-center="Audio aspect" aria-label="Audio editing aspect distribution"></div>
+                  <div class="chart-legend" id="aspect-legend"></div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-cluster" aria-label="Video statistics">
+          <div class="stats-cluster-head"><h3>Video Statistics</h3><button class="stats-cluster-toggle" type="button" aria-expanded="true" aria-label="Collapse video statistics"><span class="cluster-meta">145 source videos</span><span class="cluster-chevron" aria-hidden="true"></span></button></div>
+          <div class="video-stats-grid stats-cluster-body">
+            <article class="chart-card video-content-card">
+              <div class="chart-head"><h3>Video Content</h3><div class="stats-slider-controls"><button class="stats-slider-button" type="button" data-stats-prev aria-label="Previous video statistic">&larr;</button><button class="stats-slider-button" type="button" data-stats-next aria-label="Next video statistic">&rarr;</button></div></div>
+              <div class="video-groups-carousel" id="video-content-bars" data-stats-carousel tabindex="0"></div>
+            </article>
+            <div class="video-stats-side">
+              <article class="chart-card audio-card">
+                <div class="chart-head"><h3>Audio Source</h3><span>Major sound types in source videos</span></div>
+                <div class="donut-layout">
+                  <div class="donut" id="audio-donut" data-center="Audio type" aria-label="Audio source distribution"></div>
+                  <div class="chart-legend" id="audio-legend"></div>
+                </div>
+              </article>
+              <article class="chart-card duration-card">
+                <div class="chart-head"><h3>Video Duration</h3><span>0-10 seconds</span></div>
+                <div class="duration-figure" role="img" aria-label="Video duration distribution">
+                  <div class="duration-rose-source" data-inline-svg="assets/figures/f_duration_rose_chart.svg"></div>
+                  <div class="duration-legend-source" data-inline-svg="assets/figures/f_duration_rose_legend.svg"></div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="metrics">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Evaluation Signals</h2>
+          </div>
+          <p class="section-copy">
+            The main score on this page is Editing Intent: a compact signal for complete edit execution, balancing whether the instruction was followed and whether non-target content survived.
+          </p>
+        </div>
+        <div class="metric-grid">
+          <article class="metric">
+            <b>EI</b>
+            <h3>Editing Intent</h3>
+            <p>Rewards an output only when the requested edit is executed and non-target content is preserved. This is the primary case score shown below.</p>
+          </article>
+          <article class="metric">
+            <b>IF</b>
+            <h3>Instruction Following</h3>
+            <p>Checklist questions verify whether the intended visual, audio, or speech modification appears in the edited result.</p>
+          </article>
+          <article class="metric">
+            <b>FP</b>
+            <h3>Fidelity Preserving</h3>
+            <p>Preservation checks compare source and edited videos for unintended changes to retained content.</p>
+          </article>
+          <article class="metric">
+            <b>REAL</b>
+            <h3>Realism</h3>
+            <p>A separate rubric asks whether the edited clip is natural, coherent, physically plausible, and free of obvious artifacts.</p>
+          </article>
+        </div>
+        <div class="auto-metrics" aria-label="Automated metric groups">
+          <span class="pill">AV Sync</span>
+          <span class="pill">Lip Sync</span>
+          <span class="pill">Video Aesthetic</span>
+          <span class="pill">Subject Consistency</span>
+          <span class="pill">Motion Smoothness</span>
+          <span class="pill">Audio Aesthetic</span>
+          <span class="pill">Speech Quality</span>
+        </div>
+        <div class="panel" style="margin-top:22px">
+          <img src="assets/figures/evaluation_matrix.png?v=20260715" alt="AVE-Compass evaluation matrix">
+        </div>
+      </div>
+    </section>
+
+    <section id="findings">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Key Findings</h2>
+          </div>
+          <p class="section-copy">
+            Main experimental results on AVE-Compass. Editing Intent is the headline score because it jointly reflects edit execution and non-target preservation.
+          </p>
+        </div>
+        <div class="result-layout">
+          <div class="panel pad leaderboard-panel">
+            <div class="leaderboard-head">
+              <div>
+                <h3>MLLM-as-Judge Leaderboard</h3>
+                <p>Overall / Video / Audio scores · higher is better</p>
+              </div>
+            </div>
+            <div class="table-scroll">
+              <table class="result-table full-results-table" aria-label="Complete AVE-Compass MLLM-as-Judge leaderboard">
+                <thead>
+                  <tr>
+                    <th rowspan="2">Model</th>
+                    <th class="metric-group intent-group group-start" colspan="3">Editing Intent</th>
+                    <th class="metric-group group-start" colspan="3">Instruction Following</th>
+                    <th class="metric-group group-start" colspan="3">Fidelity Preserving</th>
+                    <th class="metric-group group-start" colspan="3">Realism</th>
+                  </tr>
+                  <tr>
+                    <th class="intent-overall group-start">Overall</th><th>Video</th><th>Audio</th>
+                    <th class="group-start">Overall</th><th>Video</th><th>Audio</th>
+                    <th class="group-start">Overall</th><th>Video</th><th>Audio</th>
+                    <th class="group-start">Overall</th><th>Video</th><th>Audio</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>AVE-Agent (Wan)</td>
+                    <td class="intent-overall best"><span class="rank-score"><span class="rank-badge gold" aria-label="Rank 1">1</span><span>59.8<sup class="delta">+17.4</sup></span></span></td>
+                    <td class="best">66.7<sup class="delta">+6.6</sup></td><td class="best">50.2<sup class="delta">+25.4</sup></td>
+                    <td class="best">77.3<sup class="delta">+8.0</sup></td><td class="best">84.8<sup class="delta">+6.5</sup></td><td class="best">69.4<sup class="delta">+9.1</sup></td>
+                    <td>77.6<sup class="delta">+13.4</sup></td><td>80.1<sup class="delta">+1.6</sup></td><td>74.8<sup class="delta">+26.7</sup></td>
+                    <td>62.1<sup class="delta">+1.7</sup></td><td>45.3<sup class="delta">+1.8</sup></td><td>78.9<sup class="delta">+1.5</sup></td>
+                  </tr>
+                  <tr><td>Wan2.7</td><td class="intent-overall"><span class="rank-score"><span class="rank-badge silver" aria-label="Rank 2">2</span><span>42.4</span></span></td><td>60.1</td><td>24.8</td><td>69.3</td><td>78.3</td><td>60.3</td><td>64.2</td><td>78.5</td><td>48.1</td><td>60.4</td><td>43.5</td><td>77.4</td></tr>
+                  <tr><td>HappyHorse</td><td class="intent-overall"><span class="rank-score"><span class="rank-badge bronze" aria-label="Rank 3">3</span><span>41.3</span></span></td><td>56.7</td><td>18.8</td><td>66.9</td><td>75.5</td><td>54.5</td><td>63.9</td><td>74.5</td><td>53.3</td><td>63.0</td><td>49.9</td><td>76.0</td></tr>
+                  <tr><td>Gemini-Omni<sup>*</sup></td><td class="intent-overall">38.0</td><td>56.1</td><td>10.0</td><td>44.9</td><td>74.0</td><td>10.8</td><td class="best">84.9</td><td>76.8</td><td class="best">96.1</td><td>66.9</td><td>49.2</td><td>84.5</td></tr>
+                  <tr><td>Seedance</td><td class="intent-overall">26.6</td><td>36.1</td><td>13.5</td><td>37.4</td><td>50.5</td><td>24.4</td><td>81.7</td><td class="best">83.0</td><td>80.4</td><td class="best">69.2</td><td class="best">54.0</td><td>84.4</td></tr>
+                  <tr><td>LTX2</td><td class="intent-overall">15.2</td><td>10.7</td><td>26.4</td><td>70.1</td><td>72.8</td><td>66.2</td><td>30.6</td><td>24.5</td><td>42.3</td><td>64.1</td><td>42.0</td><td class="best">86.2</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="table-note"><sup>*</sup> Gemini-Omni misses 16 speech edits due to content moderation. Superscripts on AVE-Agent show changes over the Wan2.7 backbone.</p>
+          </div>
+
+          <details class="panel automatic-metrics-details">
+            <summary>
+              <span class="automatic-summary-copy"><strong>Automatic Metrics</strong><span>7 automated quality metrics · click to expand</span></span>
+              <span class="automatic-chevron" aria-hidden="true"></span>
+            </summary>
+            <div class="automatic-table-wrap table-scroll">
+              <table class="result-table automatic-results-table" aria-label="Complete AVE-Compass automated metric results">
+                <thead>
+                  <tr>
+                    <th rowspan="2">Model</th>
+                    <th class="metric-group group-start" colspan="2">Cross-Modal</th>
+                    <th class="metric-group group-start" colspan="3">Video</th>
+                    <th class="metric-group group-start" colspan="2">Audio</th>
+                  </tr>
+                  <tr>
+                    <th class="group-start">Lip Sync<sup>†</sup></th><th>AV Sync</th>
+                    <th class="group-start">Video Aesthetic</th><th>Subject Consistency</th><th>Motion Smoothness</th>
+                    <th class="group-start">Audio Aesthetic</th><th>Speech Quality<sup>†</sup></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>AVE-Agent (Wan)</td><td class="best">0.622<sup class="delta">+0.091</sup></td><td class="best">0.766<sup class="delta">+0.073</sup></td><td>0.452<sup class="delta">+0.001</sup></td><td>0.972<sup class="delta">+0.003</sup></td><td>0.987<sup class="delta">+0.001</sup></td><td>0.614<sup class="delta">+0.005</sup></td><td>0.368<sup class="delta">−0.060</sup></td></tr>
+                  <tr><td>Wan2.7</td><td>0.531</td><td>0.693</td><td>0.451</td><td>0.969</td><td>0.986</td><td>0.609</td><td>0.428</td></tr>
+                  <tr><td>HappyHorse</td><td>0.620</td><td>0.695</td><td>0.439</td><td class="best">0.975</td><td class="best">0.989</td><td class="best">0.650</td><td class="best">0.726</td></tr>
+                  <tr><td>Gemini-Omni<sup>*</sup></td><td>—</td><td>0.701</td><td>0.434</td><td>0.974</td><td>0.988</td><td>0.627</td><td>—</td></tr>
+                  <tr><td>Seedance</td><td>0.431</td><td>0.718</td><td>0.430</td><td>0.971</td><td>0.987</td><td>0.629</td><td>0.388</td></tr>
+                  <tr><td>LTX2</td><td>0.618</td><td>0.758</td><td class="best">0.468</td><td>0.968</td><td>0.986</td><td>0.641</td><td>0.522</td></tr>
+                </tbody>
+              </table>
+              <p class="table-note"><sup>*</sup> Gemini-Omni misses 16 speech edits due to content moderation. <sup>†</sup> Speech Quality and Lip Sync are computed only on speech-category edits.</p>
+            </div>
+          </details>
+
+          <div class="findings">
+            <article class="finding">
+              <strong>AVE-Agent is the strongest edit executor.</strong>
+              <p>It improves overall Editing Intent by +17.4 over the Wan2.7 backbone, with especially large gains on audio-side edit completion.</p>
+            </article>
+            <article class="finding">
+              <strong>Instruction following and preservation pull against each other.</strong>
+              <p>Some models follow instructions by regenerating too much, while others preserve the source by not editing enough. Editing Intent exposes this tradeoff directly.</p>
+            </article>
+            <article class="finding">
+              <strong>Audio-visual realism still lags behind low-level quality.</strong>
+              <p>High aesthetic or signal scores can miss physical-logic failures, temporal mismatches, and unnatural edited regions.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="agent">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>AVE-Agent</h2>
+          </div>
+          <p class="section-copy">
+            AVE-Agent is a modular baseline for complex cross-modal editing. It uses planning, local reflection, and mixed audio-video evaluation to reduce blind single-pass editing failures.
+          </p>
+        </div>
+        <div class="agent-layout">
+          <div class="transparent-figure">
+            <img src="assets/figures/agent-transparent.png" alt="AVE-Agent architecture overview">
+          </div>
+          <div class="agent-steps">
+            <article class="step">
+              <div class="num">1</div>
+              <div>
+                <h3>Plan</h3>
+                <p>Analyze the source clip, identify explicit and implicit audio-visual requirements, and decompose the instruction into dependent subtasks.</p>
+              </div>
+            </article>
+            <article class="step">
+              <div class="num">2</div>
+              <div>
+                <h3>Execute</h3>
+                <p>Route subtasks to visual, audio, or speech editing branches and use evaluator feedback to refine failed local attempts.</p>
+              </div>
+            </article>
+            <article class="step">
+              <div class="num">3</div>
+              <div>
+                <h3>Evaluate</h3>
+                <p>Inspect the assembled clip for global instruction following, preservation, and audio-video coherence before deciding whether to pass, remix, regenerate, or replan.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="cases">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Case Gallery</h2>
+          </div>
+          <p class="section-copy">
+            Five representative edit types. Each case pairs the original audio-video with its instruction and tags, followed by scrollable model results reporting only Editing Intent.
+          </p>
+        </div>
+        <div class="case-list">
+          <article class="case">
+            <div class="case-overview">
+              <div class="source-media">
+                <div class="video-label">Original audio-video</div>
+                <video src="assets/cases/videos__10_2.mp4" controls preload="metadata" playsinline></video>
+              </div>
+              <div class="case-meta">
+                <span class="case-kicker">Case 01</span>
+                <h3>Bee around a rabbit</h3>
+                <div class="instruction-block">
+                  <span class="instruction-label">Editing instruction</span>
+                  <p>Introduce the sound of a buzzing bee; show a bee visually flying around the rabbit.</p>
+                </div>
+                <div class="case-tags" aria-label="Case categories and tags">
+                  <span class="tag category">Joint AV</span>
+                  <span class="tag operation">J1.1 New Source Insertion</span>
+                  <span class="tag modality">Audio + Video</span>
+                  <span class="tag">Animal subject</span>
+                  <span class="tag">Outdoor nature</span>
+                  <span class="tag difficulty">Localization &middot; Hard</span>
+                  <span class="tag difficulty">Audio Complexity &middot; Complex</span>
+                  <span class="tag difficulty">AV Linkage &middot; Explicit</span>
+                </div>
+              </div>
+            </div>
+            <div class="carousel-head">
+              <h4>Edited results</h4>
+              <div class="carousel-controls">
+                <button class="carousel-button" type="button" data-carousel-prev aria-label="Previous model result">&larr;</button>
+                <button class="carousel-button" type="button" data-carousel-next aria-label="Next model result">&rarr;</button>
+              </div>
+            </div>
+            <div class="model-carousel" data-carousel tabindex="0" aria-label="Model results for bee insertion">
+              <article class="model-card agent-card"><div class="model-card-head"><strong>AVE-Agent</strong><span class="intent-score">EI 100.0%</span></div><video src="assets/cases/subsetoutput_agent_wan_v71__10_2.e1.mp4" controls preload="metadata" playsinline></video></article>
+              <article class="model-card"><div class="model-card-head"><strong>Wan2.7</strong><span class="intent-score">EI 38.1%</span></div><video src="assets/cases/subsetoutput_wan27__10_2_10.mp4" controls preload="metadata" playsinline></video></article>
+              <article class="model-card failure-card"><div class="model-card-head"><strong>HappyHorse1.0</strong><span class="intent-score">EI 19.0%</span></div><video src="assets/cases/subsetoutput_happy_horse__10_2_10.mp4" controls preload="metadata" playsinline></video><p class="failure-note"><strong>Observed issue</strong>The original BGM is not preserved.</p></article>
+              <article class="model-card failure-card"><div class="model-card-head"><strong>Gemini Omni</strong><span class="intent-score">EI 50.0%</span></div><video src="assets/cases/subsetoutput_gemini_omni__10_2_10.mp4" controls preload="metadata" playsinline></video><p class="failure-note"><strong>Observed issue</strong>No bee buzzing sound is added.</p></article>
+              <article class="model-card failure-card"><div class="model-card-head"><strong>Seedance</strong><span class="intent-score">EI 35.7%</span></div><video src="assets/cases/subsetoutput_seedance__10_2_10.mp4" controls preload="metadata" playsinline></video><p class="failure-note"><strong>Observed issue</strong>The original BGM is not preserved.</p></article>
+              <article class="model-card ltx-card failure-card"><div class="model-card-head"><strong>LTX2</strong><span class="intent-score">EI 28.6%</span></div><video src="assets/cases/subsetoutput_ltx2__10_2_10.mp4" controls preload="metadata" playsinline></video><p class="failure-note"><strong>Observed issue</strong>The entire source video is regenerated.</p></article>
+            </div>
+          </article>
+
+          <article class="case">
+            <div class="case-overview">
+              <div class="source-media"><div class="video-label">Original audio-video</div><video src="assets/cases/videos__9U_vf04S080_70.0_79.0_manual.mp4" controls preload="metadata" playsinline></video></div>
+              <div class="case-meta">
+                <span class="case-kicker">Case 02</span>
+                <h3>Overcast to heavy rain</h3>
+                <div class="instruction-block"><span class="instruction-label">Editing instruction</span><p>Change the overcast scene to a heavy downpour; add visible rain streaks and the immersive sound of heavy rain hitting the street and buildings.</p></div>
+                <div class="case-tags" aria-label="Case categories and tags"><span class="tag category">Joint AV</span><span class="tag operation">J6.1 Visible Weather</span><span class="tag modality">Audio + Video</span><span class="tag">Weather</span><span class="tag">Urban street</span><span class="tag difficulty">Localization &middot; Easy</span><span class="tag difficulty">Audio Complexity &middot; Moderate</span><span class="tag difficulty">AV Linkage &middot; Explicit</span></div>
+              </div>
+            </div>
+            <div class="carousel-head"><h4>Edited results</h4><div class="carousel-controls"><button class="carousel-button" type="button" data-carousel-prev aria-label="Previous model result">&larr;</button><button class="carousel-button" type="button" data-carousel-next aria-label="Next model result">&rarr;</button></div></div>
+            <div class="model-carousel" data-carousel tabindex="0" aria-label="Model results for visible weather editing">
+              <article class="model-card agent-card"><div class="model-card-head"><strong>AVE-Agent</strong><span class="intent-score">EI 100.0%</span></div><video src="assets/cases/subsetoutput_agent_wan_v71__9U_vf04S080_70.0_79.0_manual.e1.mp4" controls preload="metadata" playsinline></video></article>
+              <article class="model-card failure-card"><div class="model-card-head"><strong>Wan2.7</strong><span class="intent-score">EI 14.3%</span></div><video src="assets/cases/subsetoutput_wan27__9U_vf04S080_70.0_79.0_manual_54.mp4" controls preload="metadata" playsinline></video><p class="failure-note"><strong>Observed issue</strong>Overly exaggerated effects alter the street, which should remain unchanged.</p></article>
+              <article class="model-card failure-card"><div class="model-card-head"><strong>HappyHorse1.0</strong><span class="intent-score">EI 0.0%</span></div><video src="assets/cases/subsetoutput_happy_horse__9U_vf04S080_70.0_79.0_manual_54.mp4" controls preload="metadata" playsinline></video><p class="failure-note"><strong>Observed issue</strong>The output is almost unedited.</p></article>
+              <article class="model-card failure-card"><div class="model-card-head"><strong>Gemini Omni</strong><span class="intent-score">EI 35.7%</span></div><video src="assets/cases/subsetoutput_gemini_omni__9U_vf04S080_70.0_79.0_manual_54.mp4" controls preload="metadata" playsinline></video><p class="failure-note"><strong>Observed issue</strong>The audio remains unchanged.</p></article>
+              <article class="model-card failure-card"><div class="model-card-head"><strong>Seedance</strong><span class="intent-score">EI 0.0%</span></div><video src="assets/cases/subsetoutput_seedance__9U_vf04S080_70.0_79.0_manual_54.mp4" controls preload="metadata" playsinline></video><p class="failure-note"><strong>Observed issue</strong>The output is almost unedited.</p></article>
+              <article class="model-card ltx-card failure-card"><div class="model-card-head"><strong>LTX2</strong><span class="intent-score">EI 14.3%</span></div><video src="assets/cases/subsetoutput_ltx2__9U_vf04S080_70.0_79.0_manual_54.mp4" controls preload="metadata" playsinline></video><p class="failure-note"><strong>Observed issue</strong>The entire source video is regenerated.</p></article>
+            </div>
+          </article>
+
+          <article class="case">
+            <div class="case-overview">
+              <div class="source-media"><div class="video-label">Original audio-video</div><video src="assets/cases/videos__7ik2wgDkvxc_31.0_38.0_manual.mp4" controls preload="metadata" playsinline></video></div>
+              <div class="case-meta">
+                <span class="case-kicker">Case 03</span>
+                <h3>Replace Kibble</h3>
+                <div class="instruction-block"><span class="instruction-label">Editing instruction</span><p>Change the kibble being poured into the bowl to water; replace the hard clatter of dry dog food with the sound of water splashing and filling the bowl.</p></div>
+                <div class="case-tags" aria-label="Case categories and tags"><span class="tag category">Joint AV</span><span class="tag operation">J4.1 Identity Swap</span><span class="tag modality">Audio + Video</span><span class="tag">Spurious object/text</span><span class="tag">Object replacement</span><span class="tag difficulty">Localization &middot; Hard</span><span class="tag difficulty">Audio Complexity &middot; Complex</span><span class="tag difficulty">AV Linkage &middot; Explicit</span></div>
+              </div>
+            </div>
+            <div class="carousel-head"><h4>Edited results</h4><div class="carousel-controls"><button class="carousel-button" type="button" data-carousel-prev aria-label="Previous model result">&larr;</button><button class="carousel-button" type="button" data-carousel-next aria-label="Next model result">&rarr;</button></div></div>
+            <div class="model-carousel" data-carousel tabindex="0" aria-label="Model results for object identity editing">
+              <article class="model-card agent-card"><div class="model-card-head"><strong>AVE-Agent</strong><span class="intent-score">EI 100.0%</span></div><video src="assets/cases/subsetoutput_agent_wan_v71__7ik2wgDkvxc_31.0_38.0_manual.e1.mp4" controls preload="metadata" playsinline></video></article>
+              <article class="model-card failure-card"><div class="model-card-head"><strong>Wan2.7</strong><span class="intent-score">EI 57.1%</span></div><video src="assets/cases/subsetoutput_wan27__7ik2wgDkvxc_31.0_38.0_manual_46.mp4" controls preload="metadata" playsinline></video><p class="failure-note"><strong>Observed issue</strong>The original BGM changes unexpectedly.</p></article>
+              <article class="model-card failure-card"><div class="model-card-head"><strong>HappyHorse1.0</strong><span class="intent-score">EI 28.6%</span></div><video src="assets/cases/subsetoutput_happy_horse__7ik2wgDkvxc_31.0_38.0_manual_46.mp4" controls preload="metadata" playsinline></video><p class="failure-note"><strong>Observed issue</strong>The audio is almost unedited.</p></article>
+              <article class="model-card failure-card"><div class="model-card-head"><strong>Gemini Omni</strong><span class="intent-score">EI 35.7%</span></div><video src="assets/cases/subsetoutput_gemini_omni__7ik2wgDkvxc_31.0_38.0_manual_46.mp4" controls preload="metadata" playsinline></video><p class="failure-note"><strong>Observed issue</strong>Abnormal subtitles appear in the edited video.</p></article>
+              <article class="model-card failure-card"><div class="model-card-head"><strong>Seedance</strong><span class="intent-score">EI 0.0%</span></div><video src="assets/cases/subsetoutput_seedance__7ik2wgDkvxc_31.0_38.0_manual_46.mp4" controls preload="metadata" playsinline></video><p class="failure-note"><strong>Observed issue</strong>The requested edit is not executed at all; instead, an unrequested voice saying "no" is added.</p></article>
+              <article class="model-card ltx-card failure-card"><div class="model-card-head"><strong>LTX2</strong><span class="intent-score">EI 0.0%</span></div><video src="assets/cases/subsetoutput_ltx2__7ik2wgDkvxc_31.0_38.0_manual_46.mp4" controls preload="metadata" playsinline></video><p class="failure-note"><strong>Observed issue</strong>The entire source video is regenerated.</p></article>
+            </div>
+          </article>
+
+          <article class="case">
+            <div class="case-overview">
+              <div class="source-media"><div class="video-label">Original audio-video</div><video src="assets/cases/videos__frag1_water.mp4" controls preload="metadata" playsinline></video></div>
+              <div class="case-meta">
+                <span class="case-kicker">Case 04</span>
+                <h3>Waterfall to winter</h3>
+                <div class="instruction-block"><span class="instruction-label">Editing instruction</span><p>Re-contextualize the lush waterfall scene into an icy, winter environment; add visuals of snow and ice, and replace the forest ambience with a colder, crisp, slightly muffled soundscape, while preserving the water flow.</p></div>
+                <div class="case-tags" aria-label="Case categories and tags"><span class="tag category">Joint AV</span><span class="tag operation">J6.2 Scene Migration</span><span class="tag modality">Audio + Video</span><span class="tag">Nature &amp; water</span><span class="tag">Environmental ambience</span><span class="tag difficulty">Localization &middot; Easy</span><span class="tag difficulty">Audio Complexity &middot; Simple</span><span class="tag difficulty">AV Linkage &middot; Explicit</span></div>
+              </div>
+            </div>
+            <div class="carousel-head"><h4>Edited results</h4><div class="carousel-controls"><button class="carousel-button" type="button" data-carousel-prev aria-label="Previous model result">&larr;</button><button class="carousel-button" type="button" data-carousel-next aria-label="Next model result">&rarr;</button></div></div>
+            <div class="model-carousel" data-carousel tabindex="0" aria-label="Model results for scene migration">
+              <article class="model-card agent-card"><div class="model-card-head"><strong>AVE-Agent</strong><span class="intent-score">EI 83.3%</span></div><video src="assets/cases/subsetoutput_agent_wan_v71__frag1_water.e2.mp4" controls preload="metadata" playsinline></video></article>
+              <article class="model-card"><div class="model-card-head"><strong>Wan2.7</strong><span class="intent-score">EI 60.0%</span></div><video src="assets/cases/subsetoutput_wan27__frag1_water_188.mp4" controls preload="metadata" playsinline></video></article>
+              <article class="model-card"><div class="model-card-head"><strong>HappyHorse1.0</strong><span class="intent-score">EI 80.0%</span></div><video src="assets/cases/subsetoutput_happy_horse__frag1_water_188.mp4" controls preload="metadata" playsinline></video></article>
+              <article class="model-card"><div class="model-card-head"><strong>Gemini Omni</strong><span class="intent-score">EI 50.0%</span></div><video src="assets/cases/subsetoutput_gemini_omni__frag1_water_188.mp4" controls preload="metadata" playsinline></video></article>
+              <article class="model-card"><div class="model-card-head"><strong>Seedance</strong><span class="intent-score">EI 60.0%</span></div><video src="assets/cases/subsetoutput_seedance__frag1_water_188.mp4" controls preload="metadata" playsinline></video></article>
+              <article class="model-card ltx-card failure-card"><div class="model-card-head"><strong>LTX2</strong><span class="intent-score">EI 6.7%</span></div><video src="assets/cases/subsetoutput_ltx2__frag1_water_188.mp4" controls preload="metadata" playsinline></video><p class="failure-note"><strong>Observed issue</strong>The entire source video is regenerated.</p></article>
+            </div>
+          </article>
+
+          <article class="case">
+            <div class="case-overview">
+              <div class="source-media"><div class="video-label">Original audio-video</div><video src="assets/cases/videos__RmyA2l-3WQU_58.0_66.0_manual.mp4" controls preload="metadata" playsinline></video></div>
+              <div class="case-meta">
+                <span class="case-kicker">Case 05</span>
+                <h3>Remove the Train Conductor</h3>
+                <div class="instruction-block"><span class="instruction-label">Editing instruction</span><p>Remove the train conductor from the second shot, inpainting the background, and silence his speech and the associated mechanical clicking sounds.</p></div>
+                <div class="case-tags" aria-label="Case categories and tags"><span class="tag category">Joint AV</span><span class="tag operation">J2.1 Source Erasure</span><span class="tag modality">Audio + Video</span><span class="tag">Temporal/audio failure</span><span class="tag">Multi-shot scene</span><span class="tag difficulty">Localization &middot; Hard</span><span class="tag difficulty">Audio Complexity &middot; Complex</span><span class="tag difficulty">AV Linkage &middot; Explicit</span></div>
+              </div>
+            </div>
+            <div class="carousel-head"><h4>Edited results</h4><div class="carousel-controls"><button class="carousel-button" type="button" data-carousel-prev aria-label="Previous model result">&larr;</button><button class="carousel-button" type="button" data-carousel-next aria-label="Next model result">&rarr;</button></div></div>
+            <div class="model-carousel" data-carousel tabindex="0" aria-label="Model results for temporal source erasure">
+              <article class="model-card agent-card"><div class="model-card-head"><strong>AVE-Agent</strong><span class="intent-score">EI 100.0%</span></div><video src="assets/cases/subsetoutput_agent_wan_v71__RmyA2l-3WQU_58.0_66.0_manual.e1.mp4" controls preload="metadata" playsinline></video></article>
+              <article class="model-card failure-card"><div class="model-card-head"><strong>Wan2.7</strong><span class="intent-score">EI 28.6%</span></div><video src="assets/cases/subsetoutput_wan27__RmyA2l-3WQU_58.0_66.0_manual_90.mp4" controls preload="metadata" playsinline></video><p class="failure-note"><strong>Observed issue</strong>The original BGM and ambient sounds are not preserved.</p></article>
+              <article class="model-card failure-card"><div class="model-card-head"><strong>HappyHorse1.0</strong><span class="intent-score">EI 22.9%</span></div><video src="assets/cases/subsetoutput_happy_horse__RmyA2l-3WQU_58.0_66.0_manual_90.mp4" controls preload="metadata" playsinline></video><p class="failure-note"><strong>Observed issue</strong>The original BGM and ambient sounds are not preserved.</p></article>
+              <article class="model-card failure-card"><div class="model-card-head"><strong>Gemini Omni</strong><span class="intent-score">EI 42.9%</span></div><video src="assets/cases/subsetoutput_gemini_omni__RmyA2l-3WQU_58.0_66.0_manual_90.mp4" controls preload="metadata" playsinline></video><p class="failure-note"><strong>Observed issue</strong>The audio remains unchanged, and abnormal events and people briefly flash into the video.</p></article>
+              <article class="model-card failure-card"><div class="model-card-head"><strong>Seedance</strong><span class="intent-score">EI 0.0%</span></div><video src="assets/cases/subsetoutput_seedance__RmyA2l-3WQU_58.0_66.0_manual_90.mp4" controls preload="metadata" playsinline></video><p class="failure-note"><strong>Observed issue</strong>The output is completely unedited.</p></article>
+              <article class="model-card ltx-card failure-card"><div class="model-card-head"><strong>LTX2</strong><span class="intent-score">EI 0.0%</span></div><video src="assets/cases/subsetoutput_ltx2__RmyA2l-3WQU_58.0_66.0_manual_90.mp4" controls preload="metadata" playsinline></video><p class="failure-note"><strong>Observed issue</strong>The entire source video is regenerated.</p></article>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="cite" id="citation">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Citation</h2>
+          </div>
+          <p class="section-copy">Dataset and project materials are released for non-commercial research use under CC BY-NC 4.0.</p>
+        </div>
+        <div class="cite-box">
+          <pre>@article{wen2026avecompass,
+  title = {AVE-Compass: Towards Holistic Evaluation for Audio-Video Editing Abilities},
+  author = {Wen, Yuqing and Huang, Yukai and Xie, Qianqian and Wu, Jiangtao and Lin, Yibin and Gu, Yikai and Chen, Jialu and Zhang, Yuanxing and Liu, Jiaheng},
+  year = {2026}
+}</pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      AVE-Compass · NJU-LINK Team, Nanjing University
+    </div>
+  </footer>
+
+  <script>
+    const PROJECT_LINKS = {
+      paper: "", // Replace with the arXiv URL after release.
+    };
+
+    document.querySelectorAll("[data-paper-link]").forEach((link) => {
+      if (PROJECT_LINKS.paper) {
+        link.href = PROJECT_LINKS.paper;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        return;
+      }
+
+      link.classList.add("is-pending");
+      link.setAttribute("aria-disabled", "true");
+      link.title = "Paper link will be available after the arXiv release";
+      link.addEventListener("click", (event) => event.preventDefault());
+    });
+
+    const videos = Array.from(document.querySelectorAll("video"));
+    videos.forEach((video) => {
+      video.addEventListener("play", () => {
+        videos.forEach((other) => {
+          if (other !== video) other.pause();
+        });
+      });
+    });
+
+    document.querySelectorAll(".case").forEach((caseElement) => {
+      const carousel = caseElement.querySelector("[data-carousel]");
+      const previous = caseElement.querySelector("[data-carousel-prev]");
+      const next = caseElement.querySelector("[data-carousel-next]");
+      if (!carousel || !previous || !next) return;
+
+      const cardStep = () => {
+        const card = carousel.querySelector(".model-card");
+        if (!card) return carousel.clientWidth * 0.8;
+        const gap = Number.parseFloat(getComputedStyle(carousel).columnGap) || 16;
+        return card.getBoundingClientRect().width + gap;
+      };
+
+      const updateControls = () => {
+        previous.disabled = carousel.scrollLeft <= 4;
+        next.disabled = carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth - 4;
+      };
+
+      previous.addEventListener("click", () => {
+        carousel.scrollBy({ left: -cardStep(), behavior: "smooth" });
+      });
+      next.addEventListener("click", () => {
+        carousel.scrollBy({ left: cardStep(), behavior: "smooth" });
+      });
+      carousel.addEventListener("scroll", () => requestAnimationFrame(updateControls), { passive: true });
+      window.addEventListener("resize", updateControls);
+      updateControls();
+    });
+
+    (() => {
+      const statsClusters = Array.from(document.querySelectorAll(".stats-cluster"));
+      statsClusters.forEach((cluster) => {
+        cluster.classList.add("stats-motion");
+        const toggle = cluster.querySelector(".stats-cluster-toggle");
+        const heading = cluster.querySelector(".stats-cluster-head h3")?.textContent?.trim() || "statistics";
+        toggle?.addEventListener("click", () => {
+          const collapsed = cluster.classList.toggle("is-collapsed");
+          toggle.setAttribute("aria-expanded", String(!collapsed));
+          toggle.setAttribute("aria-label", `${collapsed ? "Expand" : "Collapse"} ${heading.toLowerCase()}`);
+        });
+      });
+
+      const revealObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        });
+      }, { threshold: 0.08 });
+      statsClusters.forEach((cluster) => revealObserver.observe(cluster));
+
+      const tooltip = document.createElement("div");
+      tooltip.className = "chart-tooltip";
+      tooltip.setAttribute("role", "tooltip");
+      document.body.appendChild(tooltip);
+
+      const moveTooltip = (event) => {
+        const gap = 14;
+        const width = tooltip.offsetWidth;
+        const height = tooltip.offsetHeight;
+        const left = Math.min(event.clientX + gap, window.innerWidth - width - 12);
+        const top = Math.min(event.clientY + gap, window.innerHeight - height - 12);
+        tooltip.style.left = `${Math.max(12, left)}px`;
+        tooltip.style.top = `${Math.max(12, top)}px`;
+      };
+
+      const bindTooltip = (element, label) => {
+        if (!element || !label) return;
+        element.addEventListener("pointerenter", (event) => {
+          tooltip.textContent = label;
+          tooltip.classList.add("is-visible");
+          moveTooltip(event);
+        });
+        element.addEventListener("pointermove", moveTooltip);
+        element.addEventListener("pointerleave", () => tooltip.classList.remove("is-visible"));
+      };
+
+      const taxonomyOperations = [
+        "A1.1 Ambience & Room Tone",
+        "A1.2 Off-screen Remove",
+        "A1.3 BGM / Score",
+        "A2.1 Loudness & Dynamics",
+        "J1.1 New Source Insertion",
+        "J1.2 VFX Sync",
+        "J2.1 Source Erasure",
+        "J3.1 Material/Texture Shift",
+        "J4.1 Identity Swap",
+        "J5.1 Movement Change",
+        "J5.2 Intensity Change",
+        "J6.1 Visible Weather",
+        "J6.2 Scene Migration",
+        "J7.1 Slow Motion",
+        "J7.2 Speed/Frequency Change",
+        "J7.3 Time-lapse",
+        "J7.4 Reverse",
+        "S1.1 Sentence Rewrite",
+        "S1.2 Sentence Deletion",
+        "S1.3 Sentence Insertion",
+        "S2.1 Speaker Change",
+        "V1.1 Style Transfer",
+        "V2.1 Color Change",
+        "V2.2 Visual Crop & Zoom",
+        "V2.3 Position Shift",
+        "V2.4 Object Removal",
+        "V3.1 Camera Angle",
+        "V3.2 Camera Motion",
+      ];
+
+      document.querySelectorAll("[data-inline-svg]").forEach(async (target) => {
+        const response = await fetch(target.dataset.inlineSvg);
+        if (!response.ok) return;
+        target.innerHTML = await response.text();
+        if (target.classList.contains("taxonomy-chart")) {
+          const paths = Array.from(target.querySelectorAll("svg > g > g:first-child path"));
+          const labels = Array.from(target.querySelectorAll("svg > g > g:nth-child(2) text"));
+          const operationPaths = paths.slice(-taxonomyOperations.length);
+          const operationLabels = labels.slice(-taxonomyOperations.length);
+          taxonomyOperations.forEach((fullName, index) => {
+            const label = operationLabels[index];
+            const path = operationPaths[index];
+            if (!label || !path) return;
+            bindTooltip(label, fullName);
+            label.classList.add("taxonomy-sector-interactive");
+            label.setAttribute("aria-label", fullName);
+            path.classList.add("taxonomy-sector-interactive");
+            path.setAttribute("aria-label", fullName);
+            const nativeTitle = document.createElementNS("http://www.w3.org/2000/svg", "title");
+            nativeTitle.textContent = fullName;
+            path.appendChild(nativeTitle);
+            bindTooltip(path, fullName);
+          });
+        }
+      });
+
+      const videoGroups = [
+        { title: "Subject Type", color: "#e3a98f", items: [["Object / Prop", 119], ["Person", 87], ["Scenery", 50], ["Text", 42], ["Vehicle", 30], ["Animal", 25]] },
+        { title: "Subject Count", color: "#e7a25e", items: [["Single", 77], ["Few", 55], ["Crowd", 13]] },
+        { title: "Visual Style", color: "#dfcd5f", items: [["Real", 124], ["CGI / AIGC", 9], ["Animation", 12]] },
+        { title: "Scene Location", color: "#aeb67e", items: [["Outdoor", 81], ["Indoor", 64]] },
+        { title: "Content Domain", color: "#8dbdca", items: [["Vlog / Tutorial", 71], ["Movie / Drama", 34], ["Other", 12], ["Nature", 10], ["Social", 8], ["Documentary", 6], ["Sports", 4]] },
+        { title: "Shot Count", color: "#b9bcb4", items: [["1 Shot", 124], ["2 Shots", 17], ["3+ Shots", 4]] },
+      ];
+
+      const videoBars = document.getElementById("video-content-bars");
+      if (videoBars) {
+        for (let index = 0; index < videoGroups.length; index += 2) {
+          const slide = document.createElement("section");
+          slide.className = "video-group-slide";
+          videoGroups.slice(index, index + 2).forEach((group) => {
+            const panel = document.createElement("section");
+            panel.className = "video-group-panel";
+            const heading = document.createElement("h4");
+            heading.textContent = group.title;
+            panel.appendChild(heading);
+            group.items.forEach(([label, value]) => {
+              const row = document.createElement("div");
+              row.className = "bar-row";
+              row.innerHTML = `<span class="bar-label">${label}</span><span class="bar-track"><span class="bar-fill" style="width:${value / 145 * 100}%;--bar-color:${group.color}"></span></span><span class="bar-value">${value}</span>`;
+              bindTooltip(row, `${group.title} · ${label}: ${value} of 145`);
+              panel.appendChild(row);
+            });
+            slide.appendChild(panel);
+          });
+          videoBars.appendChild(slide);
+        }
+
+        const previous = document.querySelector("[data-stats-prev]");
+        const next = document.querySelector("[data-stats-next]");
+        const updateSliderControls = () => {
+          previous.disabled = videoBars.scrollLeft <= 4;
+          next.disabled = videoBars.scrollLeft + videoBars.clientWidth >= videoBars.scrollWidth - 4;
+        };
+        previous.addEventListener("click", () => videoBars.scrollBy({ left: -videoBars.clientWidth, behavior: "smooth" }));
+        next.addEventListener("click", () => videoBars.scrollBy({ left: videoBars.clientWidth, behavior: "smooth" }));
+        videoBars.addEventListener("scroll", () => requestAnimationFrame(updateSliderControls), { passive: true });
+        window.addEventListener("resize", updateSliderControls);
+        updateSliderControls();
+      }
+
+      const aspectData = [
+        ["Content", 44.4, "#a9d4df"], ["Identity", 24.5, "#efb56f"], ["Others", 8.2, "#e8d66d"],
+        ["Scene", 7.7, "#afc58f"], ["Timbre", 7.1, "#e7aaa0"], ["Intensity", 5.6, "#c8c3df"], ["Temporal", 2.5, "#b7d8ca"],
+      ];
+      const audioData = [
+        ["Narration", 6.7, "#a9d4df"], ["Vehicle", 6.1, "#efb56f"], ["Natural", 7.4, "#e8d66d"],
+        ["Tools", 18.3, "#afc58f"], ["Other", 13.8, "#e7aaa0"], ["Human", 26.3, "#c8c3df"],
+        ["Animal", 4.2, "#b7d8ca"], ["Music", 17.3, "#e6c78e"],
+      ];
+
+      const renderDonut = (donutId, legendId, data) => {
+        const donut = document.getElementById(donutId);
+        const legend = document.getElementById(legendId);
+        if (!donut || !legend) return;
+        const total = data.reduce((sum, item) => sum + item[1], 0);
+        let cursor = 0;
+        const stops = data.map(([, value, color]) => {
+          const start = cursor;
+          cursor += value / total * 100;
+          return `${color} ${start}% ${cursor}%`;
+        });
+        donut.style.setProperty("--donut-gradient", `conic-gradient(${stops.join(",")})`);
+        data.forEach(([label, value, color]) => {
+          const row = document.createElement("div");
+          row.className = "legend-row";
+          row.innerHTML = `<span class="legend-swatch" style="--swatch:${color}"></span><span>${label}</span><strong>${value.toFixed(1)}%</strong>`;
+          bindTooltip(row, `${label}: ${value.toFixed(1)}%`);
+          legend.appendChild(row);
+        });
+      };
+
+      renderDonut("aspect-donut", "aspect-legend", aspectData);
+      renderDonut("audio-donut", "audio-legend", audioData);
+
+      const difficultyData = [
+        { title: "Object Localization", items: [["Easy", 17.3, "#a9d4df"], ["Hard", 82.7, "#82bed3"]] },
+        { title: "Audio Complexity", items: [["Simple", 38.3, "#b8c995"], ["Moderate", 26.0, "#e6d36f"], ["Complex", 35.7, "#e8ad74"]] },
+        { title: "Cross-modal Linkage", items: [["Explicit", 78.1, "#e5a59c"], ["Implicit", 12.8, "#c7c1df"], ["Others", 9.2, "#b9d7cb"]] },
+      ];
+      const difficultyBars = document.getElementById("difficulty-bars");
+      if (difficultyBars) {
+        difficultyData.forEach((group) => {
+          const wrapper = document.createElement("section");
+          wrapper.className = "difficulty-group";
+          const heading = document.createElement("h4");
+          heading.textContent = group.title;
+          wrapper.appendChild(heading);
+          const bar = document.createElement("div");
+          bar.className = "stacked-bar";
+          const total = group.items.reduce((sum, item) => sum + item[1], 0);
+          group.items.forEach(([label, value, color]) => {
+            const segment = document.createElement("span");
+            segment.className = "stack-segment";
+            segment.style.width = `${value / total * 100}%`;
+            segment.style.background = color;
+            segment.title = `${label}: ${value.toFixed(1)}%`;
+            segment.textContent = value < 15 ? `${Math.round(value)}%` : `${label} ${value.toFixed(1)}%`;
+            bindTooltip(segment, `${group.title} · ${label}: ${value.toFixed(1)}%`);
+            bar.appendChild(segment);
+          });
+          wrapper.appendChild(bar);
+          difficultyBars.appendChild(wrapper);
+        });
+      }
+
+      const revealTargets = Array.from(document.querySelectorAll([
+        "main .section-head",
+        ".scope-panel",
+        ".metric",
+        ".auto-metrics",
+        "#metrics .panel",
+        ".result-layout > .panel",
+        ".finding",
+        ".transparent-figure",
+        ".step",
+        ".case",
+        ".cite-box",
+      ].join(",")));
+
+      if (revealTargets.length) {
+        document.documentElement.classList.add("reveal-ready");
+        revealTargets.forEach((target, index) => {
+          target.classList.add("reveal-item");
+          target.style.setProperty("--reveal-delay", `${index % 3 * 70}ms`);
+        });
+
+        const moduleObserver = new IntersectionObserver((entries, observer) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add("is-revealed");
+            observer.unobserve(entry.target);
+          });
+        }, { threshold: 0.08, rootMargin: "0px 0px -8% 0px" });
+
+        revealTargets.forEach((target) => moduleObserver.observe(target));
+      }
+
+    })();
+  </script>
+</body>
+</html>

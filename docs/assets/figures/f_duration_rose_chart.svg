@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="500" viewBox="0 0 1000 500">
+<style>
+          text { font-family: Inter, Arial, Helvetica, sans-serif; }
+          .pct { font-weight: 900; text-anchor: middle; dominant-baseline: central; }
+        </style>
+<rect width="1000" height="500" fill="none"/>
+<path d="M392.5 470.0 A107.5 107.5 0 0 1 607.5 470.0" fill="none" stroke="#d8cdc0" stroke-width="2.6"/>
+<path d="M285.0 470.0 A215.0 215.0 0 0 1 715.0 470.0" fill="none" stroke="#d8cdc0" stroke-width="2.6"/>
+<path d="M177.5 470.0 A322.5 322.5 0 0 1 822.5 470.0" fill="none" stroke="#d8cdc0" stroke-width="2.6"/>
+<path d="M70.0 470.0 A430.0 430.0 0 0 1 930.0 470.0" fill="none" stroke="#d8cdc0" stroke-width="2.6"/>
+<path d="M500.0 470.0 L249.6 465.5 Q233.6 465.2 234.4 449.2 A266.4 266.4 0 0 1 259.6 355.2 Q266.9 341.0 280.9 348.7 L500.0 470.0 Z" fill="#BBD8FF" stroke="#fffaf3" stroke-width="2.2" stroke-linejoin="round"><title>0-4s: 14 (7.1%)</title></path>
+<path d="M500.0 470.0 L238.7 312.8 Q225.0 304.5 233.5 291.0 A321.0 321.0 0 0 1 321.0 203.5 Q334.5 195.0 342.8 208.7 L500.0 470.0 Z" fill="#C8D8F6" stroke="#fffaf3" stroke-width="2.2" stroke-linejoin="round"><title>4-5s: 24 (12.2%)</title></path>
+<path d="M500.0 470.0 L331.0 164.7 Q323.3 150.7 337.4 143.3 A364.9 364.9 0 0 1 477.4 105.8 Q493.4 105.1 493.7 121.1 L500.0 470.0 Z" fill="#D8D8EC" stroke="#fffaf3" stroke-width="2.2" stroke-linejoin="round"><title>5-6s: 34 (17.3%)</title></path>
+<path d="M500.0 470.0 L507.5 56.1 Q507.7 40.1 523.7 40.7 A430.0 430.0 0 0 1 694.1 86.3 Q708.3 93.8 700.5 107.8 L500.0 470.0 Z" fill="#EBD6DF" stroke="#fffaf3" stroke-width="2.2" stroke-linejoin="round"><title>6-8s: 52 (26.5%)</title></path>
+<path d="M500.0 470.0 L652.2 217.1 Q660.4 203.4 673.9 212.0 A311.2 311.2 0 0 1 758.0 296.1 Q766.6 309.6 752.9 317.8 L500.0 470.0 Z" fill="#F9D4D1" stroke="#fffaf3" stroke-width="2.2" stroke-linejoin="round"><title>8-9s: 22 (11.2%)</title></path>
+<path d="M500.0 470.0 L856.4 272.7 Q870.4 264.9 877.9 279.1 A423.4 423.4 0 0 1 922.7 446.4 Q923.3 462.4 907.3 462.7 L500.0 470.0 Z" fill="#FFD4C4" stroke="#fffaf3" stroke-width="2.2" stroke-linejoin="round"><title>9-10s: 50 (25.5%)</title></path>
+<text class="pct" x="221.4" y="395.4" font-size="23" fill="#24312d">7.1%</text>
+<text class="pct" x="257.5" y="227.5" font-size="23" fill="#24312d">12.2%</text>
+<text class="pct" x="399.9" y="96.3" font-size="30" fill="#24312d">17.3%</text>
+<text class="pct" x="617.0" y="33.4" font-size="30" fill="#24312d">26.5%</text>
+<text class="pct" x="735.6" y="234.4" font-size="23" fill="#24312d">11.2%</text>
+<text class="pct" x="930.2" y="354.7" font-size="30" fill="#24312d">25.5%</text>
+</svg>
