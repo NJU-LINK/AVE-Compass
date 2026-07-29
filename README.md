@@ -18,13 +18,13 @@
 <p align="center">
   <a href="https://ave-compass.github.io/"><img src="https://img.shields.io/badge/Project-Page-78B6CA?logo=googlechrome&logoColor=white" alt="Project page"></a>
   <a href="https://arxiv.org/abs/2607.24821"><img src="https://img.shields.io/badge/Paper-arXiv%3A2607.24821-B31B1B?logo=arxiv&logoColor=white" alt="Paper"></a>
-  <a href="https://huggingface.co/datasets/NJU-LINK/AVE-Compass"><img src="https://img.shields.io/badge/Dataset-AVE--Compass-FFD21E?logo=huggingface&logoColor=black" alt="Dataset"></a>
+  <a href="https://huggingface.co/datasets/NJU-LINK/AVE-Compass-v2"><img src="https://img.shields.io/badge/Dataset-AVE--Compass--v2-FFD21E?logo=huggingface&logoColor=black" alt="Dataset"></a>
   <a href="https://github.com/NJU-LINK/AVE-Compass"><img src="https://img.shields.io/badge/GitHub-Code-24292F?logo=github&logoColor=white" alt="GitHub code"></a>
 </p>
 
 **Work overview.** AVE-Compass is a diagnostic benchmark for free-form audio-video editing, built from 145 curated source videos, 196 audio-visually coupled instructions, and 2,688 fine-grained checklist items. Its evaluation separates Instruction Following, Fidelity Preserving, Realism, and Editing Intent, combining MLLM-as-Judge evaluation with automated cross-modal, video, and audio metrics to expose incomplete edits, non-target drift, perceptual artifacts, and audio-visual misalignment.
 
-**Repository overview.** This repository provides the AVE-Compass evaluation pipeline, configuration files, input templates, metric implementations, and AVE-Agent. The evaluator processes source videos, edit instructions, checklists, and model-generated edited videos with MLLM and objective metrics, while the [AVE-Compass dataset](https://huggingface.co/datasets/NJU-LINK/AVE-Compass) provides the benchmark samples. AVE-Agent provides a planning and self-reflection baseline for complex editing instructions.
+**Repository overview.** This repository provides the AVE-Compass evaluation pipeline, configuration files, input templates, metric implementations, and AVE-Agent. The evaluator processes source videos, edit instructions, checklists, and model-generated edited videos with MLLM and objective metrics, while the [AVE-Compass-v2 dataset](https://huggingface.co/datasets/NJU-LINK/AVE-Compass-v2) provides the benchmark samples. AVE-Agent provides a planning and self-reflection baseline for complex editing instructions.
 
 <p align="center">
   <a href="#evaluation-code">Evaluation Code</a> &middot;
