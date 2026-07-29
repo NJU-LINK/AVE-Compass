@@ -17,7 +17,7 @@
 
 <p align="center">
   <a href="https://ave-compass.github.io/"><img src="https://img.shields.io/badge/Project-Page-78B6CA?logo=googlechrome&logoColor=white" alt="Project page"></a>
-  <a href="#citation"><img src="https://img.shields.io/badge/Paper-Citation-4B5563?logo=googlescholar&logoColor=white" alt="Paper citation"></a>
+  <a href="https://arxiv.org/abs/2607.24821"><img src="https://img.shields.io/badge/Paper-arXiv%3A2607.24821-B31B1B?logo=arxiv&logoColor=white" alt="Paper"></a>
   <a href="https://huggingface.co/datasets/NJU-LINK/AVE-Compass"><img src="https://img.shields.io/badge/Dataset-AVE--Compass-FFD21E?logo=huggingface&logoColor=black" alt="Dataset"></a>
   <a href="https://github.com/NJU-LINK/AVE-Compass"><img src="https://img.shields.io/badge/GitHub-Code-24292F?logo=github&logoColor=white" alt="GitHub code"></a>
 </p>
@@ -191,6 +191,10 @@ The tests cover input pairing, metric routing, missing-value handling, checklist
 @article{wen2026avecompass,
   title  = {AVE-Compass: Towards Holistic Evaluation for Audio-Video Editing Abilities},
   author = {Wen, Yuqing and Huang, Yukai and Xie, Qianqian and Wu, Jiangtao and Lin, Yibin and Gu, Yikai and Chen, Jialu and Zhang, Yuanxing and Liu, Jiaheng},
-  year   = {2026}
+  year   = {2026},
+  eprint = {2607.24821},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.MM},
+  url    = {https://arxiv.org/abs/2607.24821}
 }
 ```
